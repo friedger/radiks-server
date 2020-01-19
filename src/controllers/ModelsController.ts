@@ -62,6 +62,21 @@ const makeModelsController = (
     });
   });
 
+  ModelsController.postAsync('/query', async (req, res) => {
+    const query = req.body;
+    const limit = Math.min(Number(req.query.limit), config.maxLimit);
+    const options = { limit, offset: req.query.offset };
+    const cursor = radiksCollection.find(query, options);
+
+    const results = await cursor.toArray();
+    const total = await cursor.count();
+
+    res.json({
+      total,
+      results,
+    });
+  });
+
   ModelsController.getAsync('/count', async (req, res) => {
     const mongo = queryToMongo(req.query, {
       maxLimit: config.maxLimit,
